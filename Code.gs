@@ -19,6 +19,72 @@ function showUploadDialog() {
 }
 
 /**
+ * Ensures standard tabs (Dashboard, Aggregated, Consolidated) exist.
+ * In 'Consolidated', ensures row 1 has key "Tabs" in A1.
+ */
+function ensureBaseTabsExist(ss) {
+  const baseTabs = ["Dashboard", "Aggregated", "Consolidated"];
+  baseTabs.forEach(name => {
+    if (!ss.getSheetByName(name)) {
+      ss.insertSheet(name);
+    }
+  });
+
+  const consolidatedSheet = ss.getSheetByName("Consolidated");
+  // Set "Tabs" key in A1 if not already set
+  const a1Value = consolidatedSheet.getRange(1, 1).getValue();
+  if (!a1Value || a1Value.toString().trim() === "") {
+    consolidatedSheet.getRange(1, 1).setValue("Tabs").setFontWeight("bold");
+  }
+}
+
+/**
+ * Appends the new tab name to row 1 (B1, C1, D1...) under the "Tabs" key
+ * in the Consolidated sheet.
+ */
+function appendTabToConsolidated(ss, tabName) {
+  const sheet = ss.getSheetByName("Consolidated");
+  if (!sheet) return;
+
+  // Search across Row 1 for the first empty column starting from column 2 (B1)
+  const lastCol = Math.max(sheet.getLastColumn(), 1);
+  const row1Values = sheet.getRange(1, 1, 1, Math.max(lastCol, 20)).getValues()[0];
+
+  let targetCol = -1;
+  for (let c = 1; c < row1Values.length; c++) { // index 1 is column B
+    if (!row1Values[c] || row1Values[c].toString().trim() === "") {
+      targetCol = c + 1;
+      break;
+    }
+  }
+
+  if (targetCol === -1) {
+    targetCol = row1Values.length + 1;
+  }
+
+  sheet.getRange(1, targetCol).setValue(tabName);
+}
+
+/**
+ * Generates a unique tab name.
+ * If user gives "HDFC" and "HDFC" already exists, it becomes "HDFC 1", "HDFC 2", "HDFC 3", etc.
+ */
+function getUniqueTabName(ss, baseName) {
+  let uniqueName = baseName;
+  if (!ss.getSheetByName(uniqueName)) {
+    return uniqueName;
+  }
+
+  let counter = 1;
+  uniqueName = baseName + " " + counter;
+  while (ss.getSheetByName(uniqueName)) {
+    counter++;
+    uniqueName = baseName + " " + counter;
+  }
+  return uniqueName;
+}
+
+/**
  * Server-side function called by the HTML dialog
  * @param {string} bankName Name entered in input bar for the tab
  * @param {string} base64Data Base64 encoded PDF file data
@@ -74,24 +140,21 @@ function processBankStatement(bankName, base64Data, fileName) {
     throw new Error("No tabular data detected in the uploaded PDF.");
   }
 
-  // Handle Sheet Tab creation
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let targetSheet = ss.getSheetByName(cleanBankName);
 
-  // If a tab with this bank name already exists, generate a unique name (e.g. HDFC (1))
-  if (targetSheet) {
-    let counter = 1;
-    let uniqueName = cleanBankName + " (" + counter + ")";
-    while (ss.getSheetByName(uniqueName)) {
-      counter++;
-      uniqueName = cleanBankName + " (" + counter + ")";
-    }
-    targetSheet = ss.insertSheet(uniqueName);
-  } else {
-    targetSheet = ss.insertSheet(cleanBankName);
-  }
+  // 1. Ensure Dashboard, Aggregated, Consolidated exist
+  ensureBaseTabsExist(ss);
 
-  // Ensure rectangular 2D array
+  // 2. Generate unique tab name (e.g. HDFC, HDFC 1, HDFC 2...)
+  const finalTabName = getUniqueTabName(ss, cleanBankName);
+
+  // 3. Create the bank statement tab
+  const targetSheet = ss.insertSheet(finalTabName);
+
+  // 4. Record the tab name in Consolidated (Row 1 under 'Tabs' key)
+  appendTabToConsolidated(ss, finalTabName);
+
+  // 5. Ensure rectangular 2D array and write data
   const numRows = rows.length;
   const numCols = Math.max(...rows.map(r => r.length));
   const formattedRows = rows.map(r => {
@@ -101,15 +164,12 @@ function processBankStatement(bankName, base64Data, fileName) {
     return r;
   });
 
-  // Write data to sheet
   targetSheet.getRange(1, 1, numRows, numCols).setValues(formattedRows);
-
-  // Optional styling: Bold header row & auto-resize columns
   targetSheet.getRange(1, 1, 1, numCols).setFontWeight("bold");
   targetSheet.activate();
 
   return {
-    sheetName: targetSheet.getName(),
+    sheetName: finalTabName,
     rowCount: numRows
   };
 }
