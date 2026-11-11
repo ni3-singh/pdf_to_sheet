@@ -3,8 +3,8 @@
  * and append them directly into your Google Sheet.
  */
 function extractPdfToSheet() {
-  // 1. Replace with your deployed Railway service URL (e.g., https://your-app.up.railway.app)
-  const RAILWAY_API_URL = "YOUR_RAILWAY_URL_HERE/extract-tables";
+  // 1. Your deployed Railway service endpoint
+  const RAILWAY_API_URL = "https://pdf-to-sheet-api-production.up.railway.app/extract-tables";
   
   // 2. Specify the PDF file ID from Google Drive
   const PDF_FILE_ID = "YOUR_GOOGLE_DRIVE_PDF_FILE_ID";
