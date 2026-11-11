@@ -9,8 +9,31 @@
         color: #333;
         margin: 0;
       }
+      .brand-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #ebebeb;
+      }
+      .brand-logo {
+        width: 44px;
+        height: 44px;
+        object-fit: contain;
+        border-radius: 6px;
+      }
+      .brand-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #202124;
+      }
+      .brand-subtitle {
+        font-size: 12px;
+        color: #5f6368;
+      }
       .form-group {
-        margin-bottom: 16px;
+        margin-bottom: 15px;
       }
       label {
         display: block;
@@ -64,18 +87,9 @@
         border-radius: 4px;
         display: none;
       }
-      .status-info {
-        background-color: #e8f0fe;
-        color: #1a73e8;
-      }
-      .status-error {
-        background-color: #fce8e6;
-        color: #c5221f;
-      }
-      .status-success {
-        background-color: #e6f4ea;
-        color: #137333;
-      }
+      .status-info { background-color: #e8f0fe; color: #1a73e8; }
+      .status-error { background-color: #fce8e6; color: #c5221f; }
+      .status-success { background-color: #e6f4ea; color: #137333; }
       .spinner {
         display: inline-block;
         width: 12px;
@@ -87,12 +101,22 @@
         margin-right: 6px;
         vertical-align: middle;
       }
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
+      @keyframes spin { to { transform: rotate(360deg); } }
     </style>
   </head>
   <body>
+    <div class="brand-header">
+      <img 
+        class="brand-logo" 
+        src="data:image/png;base64,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" 
+        alt="Commerciology Logo"
+      />
+      <div>
+        <div class="brand-title">Commerciology</div>
+        <div class="brand-subtitle">Bank Statement Extractor</div>
+      </div>
+    </div>
+
     <div class="form-group">
       <label for="bankName">Bank Name (Tab Name)</label>
       <input type="text" id="bankName" placeholder="e.g. HDFC Bank, SBI, ICICI" autofocus />
@@ -144,7 +168,6 @@
 
         const reader = new FileReader();
         reader.onload = function(e) {
-          // Extract pure base64 string
           const base64Data = e.target.result.split(",")[1];
           
           google.script.run

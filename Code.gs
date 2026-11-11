@@ -3,8 +3,8 @@
  */
 function onOpen() {
   SpreadsheetApp.getUi()
-    .createMenu("Commerciology")
-    .addItem("Upload Bank Statement", "showUploadDialog")
+    .createMenu("🏢 Commerciology")
+    .addItem("📄 Upload Bank Statement", "showUploadDialog")
     .addToUi();
 }
 
@@ -13,8 +13,8 @@ function onOpen() {
  */
 function showUploadDialog() {
   const htmlOutput = HtmlService.createHtmlOutputFromFile("UploadDialog")
-    .setWidth(450)
-    .setHeight(360);
+    .setWidth(460)
+    .setHeight(420);
   SpreadsheetApp.getUi().showModalDialog(htmlOutput, "Commerciology - Bank Statement Extractor");
 }
 
