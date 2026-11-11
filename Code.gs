@@ -33,7 +33,7 @@ function processBankStatement(bankName, base64Data, fileName) {
   }
 
   const cleanBankName = bankName.trim();
-  const RAILWAY_API_URL = "https://pdf-to-sheet-api-production.up.railway.app/extract-tables";
+  const RAILWAY_API_URL = "https://pdftosheet-production.up.railway.app/extract-tables";
   
   // Decode base64 to binary blob
   const decodedBytes = Utilities.base64Decode(base64Data);
